@@ -1,0 +1,22 @@
+# Copy to envs/dev/terraform.tfvars (gitignored) and edit, then:
+#   terraform plan -var-file=envs/dev/terraform.tfvars
+environment = "dev"
+aws_region  = "us-east-1"
+
+# Placeholder: replace with your published image.
+app_image = "your-dockerhub-user/3tier-app:latest"
+
+# Cost-conscious sizing
+enable_nat_gateway   = true
+single_nat_gateway   = true # one shared NAT; see README design decisions
+app_instance_type    = "t3.micro"
+app_min_size         = 1
+app_desired_capacity = 1
+app_max_size         = 2
+
+db_instance_class      = "db.t4g.micro"
+db_multi_az            = false
+db_skip_final_snapshot = true
+
+# HTTPS is optional. Set to an ACM certificate ARN in the same region to enable it.
+certificate_arn = ""

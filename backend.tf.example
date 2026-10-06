@@ -1,0 +1,12 @@
+# Copy to backend.tf (gitignored) after running the bootstrap stack, and fill in
+# the values from `terraform -chdir=bootstrap output backend_config_snippet`.
+# Use a different `key` per environment so dev and prod never share state.
+terraform {
+  backend "s3" {
+    bucket         = "REPLACE-with-state-bucket-name"
+    key            = "dev/terraform.tfstate" # prod: "prod/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "aws-terraform-3tier-locks"
+    encrypt        = true
+  }
+}

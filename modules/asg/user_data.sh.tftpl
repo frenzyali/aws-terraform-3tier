@@ -1,0 +1,33 @@
+#!/bin/bash
+# Boots the 3tier-app container. Rendered by Terraform's templatefile().
+# The DB credentials are read from Secrets Manager using the instance role; they
+# never appear in Terraform variables, state, or the launch template.
+set -euo pipefail
+exec > >(tee /var/log/user-data.log) 2>&1
+
+dnf install -y docker jq
+systemctl enable --now docker
+
+SECRET_JSON="$(aws secretsmanager get-secret-value \
+  --region "${region}" \
+  --secret-id "${db_secret_arn}" \
+  --query SecretString --output text)"
+
+umask 077
+{
+  echo "DB_HOST=${db_host}"
+  echo "DB_NAME=${db_name}"
+  echo "DB_USER=$(jq -r .username <<<"$SECRET_JSON")"
+  echo "DB_PASSWORD=$(jq -r .password <<<"$SECRET_JSON")"
+} > /run/app.env
+unset SECRET_JSON
+
+docker run -d \
+  --name app \
+  --restart unless-stopped \
+  --env-file /run/app.env \
+  --publish ${app_port}:3000 \
+  "${app_image}"
+
+# The container has its own copy of the environment; remove the file from disk.
+shred -u /run/app.env

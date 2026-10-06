@@ -1,0 +1,24 @@
+# Terraform state and local working files
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+crash.*.log
+*.tfplan
+tfplan
+
+# Variable files may contain environment-specific values; commit only the examples
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# Real backend config is local; commit only backend.tf.example
+backend.tf
+!backend.tf.example
+
+# Local secrets and OS noise
+.env
+.DS_Store
+
+# Modules never pin providers; only the root and bootstrap stacks carry lock files
+modules/**/.terraform.lock.hcl
